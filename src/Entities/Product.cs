@@ -24,7 +24,11 @@ namespace BackendTeamwork.Entities
         [Required, ForeignKey("Category")]
         public Guid CategoryId { get; set; }
 
+        [Required, ForeignKey("Brand")]
+        public Guid BrandId { get; set; }
+
         public Category Category { get; set; }
+        public Brand Brand { get; set; }
         public IEnumerable<Wishlist> Wishlists { get; set; }
         public IEnumerable<Review> Reviews { get; set; }
         public IEnumerable<Stock> Stocks { get; set; }

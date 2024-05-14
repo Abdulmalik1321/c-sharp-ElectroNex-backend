@@ -24,8 +24,12 @@ namespace BackendTeamwork.Entities
         [Required, ForeignKey("Product")]
         public Guid ProductId { get; set; }
 
+        [Required, ForeignKey("User")]
+        public Guid UserId { get; set; }
+
         public IEnumerable<OrderStock> OrderStocks { get; set; }
         public Product Product { get; set; }
+        public User User { get; set; }
 
     }
 }

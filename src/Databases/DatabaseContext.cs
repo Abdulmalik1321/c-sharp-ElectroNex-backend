@@ -18,6 +18,7 @@ namespace BackendTeamwork.Databases
         public DbSet<Wishlist> Wishlist { get; set; }
         public DbSet<Category> Category { get; set; }
         public DbSet<Shipping> Shipping { get; set; }
+        public DbSet<Brand> Brand { get; set; }
 
         public DatabaseContext(DbContextOptions<DatabaseContext> options) : base(options) { }
 

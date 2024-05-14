@@ -14,7 +14,10 @@ namespace BackendTeamwork.DTOs
         public string Size { get; set; }
         [Required, StringLength(30)]
         public string Color { get; set; }
+        [Required, ForeignKey("Product")]
         public Guid ProductId { get; set; }
+        [Required, ForeignKey("User")]
+        public Guid UserId { get; set; }
 
     }
     public class StockCreateDtoWithoutId
@@ -27,6 +30,8 @@ namespace BackendTeamwork.DTOs
         public string Size { get; set; }
         [Required, StringLength(30)]
         public string Color { get; set; }
+        public Guid UserId { get; set; }
+
 
     }
 
@@ -38,6 +43,8 @@ namespace BackendTeamwork.DTOs
         public string Size { get; set; }
         public string Color { get; set; }
         public Guid ProductId { get; set; }
+        public Guid UserId { get; set; }
+
     }
 
     public class StockUpdateDto
@@ -47,5 +54,7 @@ namespace BackendTeamwork.DTOs
         public string Size { get; set; }
         public string Color { get; set; }
         public Guid ProductId { get; set; }
+        public Guid UserId { get; set; }
+
     }
 }

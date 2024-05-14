@@ -17,6 +17,8 @@ namespace BackendTeamwork.DTOs
         public string Description { get; set; }
         [Required, ForeignKey("Category")]
         public Guid CategoryId { get; set; }
+        [Required, ForeignKey("Brand")]
+        public Guid BrandId { get; set; }
 
         public IEnumerable<StockCreateDtoWithoutId>? NewStocks { get; set; }
     }
@@ -28,6 +30,7 @@ namespace BackendTeamwork.DTOs
         public string Image { get; set; }
         public string Description { get; set; }
         public Guid CategoryId { get; set; }
+        public Guid BrandId { get; set; }
     }
 
     public class ProductUpdateDto
@@ -36,5 +39,6 @@ namespace BackendTeamwork.DTOs
         public string Image { get; set; }
         public string Description { get; set; }
         public Guid CategoryId { get; set; }
+        public Guid BrandId { get; set; }
     }
 }
