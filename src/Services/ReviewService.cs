@@ -16,9 +16,9 @@ namespace BackendTeamwork.Services
             _mapper = mapper;
         }
 
-        public IEnumerable<ReviewReadDto> FindMany(int limit, int offset)
+        public IEnumerable<ReviewReadDto> FindMany(Guid productId, int limit, int offset)
         {
-            return _reviewRepository.FindMany(limit, offset).Select(_mapper.Map<ReviewReadDto>);
+            return _reviewRepository.FindMany(productId, limit, offset).Select(_mapper.Map<ReviewReadDto>);
         }
         public async Task<ReviewReadDto?> FindOne(Guid reviewId)
         {

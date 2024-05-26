@@ -8,6 +8,7 @@ namespace BackendTeamwork.DTOs
 {
     public class UserCreateDto
     {
+        public Guid? Id { get; set; }
         [Required(AllowEmptyStrings = false), StringLength(30)]
         public string FirstName { get; set; }
         [Required(AllowEmptyStrings = false), StringLength(30)]

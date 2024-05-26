@@ -10,7 +10,7 @@ namespace BackendTeamwork.Entities
         public Guid Id { get; set; }
 
         [Required]
-        public int Price { get; set; }
+        public double Price { get; set; }
 
         [Required]
         public int Quantity { get; set; }
@@ -20,6 +20,9 @@ namespace BackendTeamwork.Entities
 
         [Required, StringLength(30)]
         public string Color { get; set; }
+
+        [Required, StringLength(30)]
+        public string Condition { get; set; }
 
         [Required, ForeignKey("Product")]
         public Guid ProductId { get; set; }
@@ -31,5 +34,6 @@ namespace BackendTeamwork.Entities
         public Product Product { get; set; }
         public User User { get; set; }
 
+        public IEnumerable<StockImage> StockImage { get; set; }
     }
 }

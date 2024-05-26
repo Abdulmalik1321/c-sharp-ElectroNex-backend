@@ -1,24 +1,30 @@
 #pragma warning disable CS8618
+
 using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
 
 namespace BackendTeamwork.Entities
 {
-    public class OrderStock
+    public class StockImage
     {
         [Key]
         public Guid Id { get; set; }
-        [Required]
-        public double Price { get; set; }
-        [Required]
-        public int Quantity { get; set; }
 
-        [Required, ForeignKey("Order")]
-        public Guid OrderId { get; set; }
         [Required, ForeignKey("Stock")]
         public Guid StockId { get; set; }
+        [Required]
+        public string Url { get; set; }
+        [Required]
+        public bool IsMain { get; set; }
 
-        public Order Order { get; set; }
+        [Required]
+        public string Color { get; set; }
+        [Required]
+        public string Size { get; set; }
+
+        [Required, StringLength(30)]
         public Stock Stock { get; set; }
+
     }
+
 }

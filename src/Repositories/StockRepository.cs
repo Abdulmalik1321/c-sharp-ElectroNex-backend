@@ -73,7 +73,14 @@ namespace BackendTeamwork.Repositories
         {
             Stock stock = _stocks.AsNoTracking().First(stock => stock.Id == orderStock.StockId);
 
-            stock.Quantity -= orderStock.Quantity;
+            if (stock.Quantity - orderStock.Quantity < 0)
+            {
+                throw new Exception("Low quantity");
+            }
+            else
+            {
+                stock.Quantity -= orderStock.Quantity;
+            }
 
             _stocks.Update(stock);
             await _databaseContext.SaveChangesAsync();

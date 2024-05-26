@@ -16,15 +16,15 @@ namespace BackendTeamwork.Controllers
         }
 
         [HttpGet]
-        [Authorize(Roles = "Admin, Customer")]
+
         [ProducesResponseType(StatusCodes.Status200OK)]
         public ActionResult<IEnumerable<BrandReadDto>> FindMany([FromQuery(Name = "limit")] int limit, [FromQuery(Name = "offset")] int offset)
         {
             return Ok(_brandService.FindMany(limit, offset));
         }
 
-        [HttpGet(":{brandId}")]
-        [Authorize(Roles = "Admin, Customer")]
+        [HttpGet("{brandId}")]
+
         [ProducesResponseType(StatusCodes.Status200OK)]
         [ProducesResponseType(StatusCodes.Status404NotFound)]
         public async Task<ActionResult<BrandReadDto>> FindOne(Guid brandId)
@@ -45,7 +45,7 @@ namespace BackendTeamwork.Controllers
             return Ok(await _brandService.CreateOne(newBrand));
         }
 
-        [HttpPut(":{brandId}")]
+        [HttpPut("{brandId}")]
         [Authorize(Roles = "Admin")]
         [ProducesResponseType(StatusCodes.Status200OK)]
         [ProducesResponseType(StatusCodes.Status404NotFound)]
@@ -59,7 +59,7 @@ namespace BackendTeamwork.Controllers
             return NotFound();
         }
 
-        [HttpDelete(":{brandId}")]
+        [HttpDelete("{brandId}")]
         [Authorize(Roles = "Admin")]
         [ProducesResponseType(StatusCodes.Status200OK)]
         [ProducesResponseType(StatusCodes.Status404NotFound)]

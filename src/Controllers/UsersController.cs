@@ -27,7 +27,7 @@ namespace BackendTeamwork.Controllers
             return Ok(_userService.FindMany(limit, offset, sortBy));
         }
 
-        [HttpGet(":{userId}")]
+        [HttpGet("{userId}")]
         [Authorize(Roles = "Admin")]
         [ProducesResponseType(StatusCodes.Status200OK)]
         [ProducesResponseType(StatusCodes.Status404NotFound)]
@@ -63,6 +63,17 @@ namespace BackendTeamwork.Controllers
         {
             return Ok(await _userService.SignUp(newUser));
         }
+        [HttpPost("many/signUp")]
+        [ProducesResponseType(StatusCodes.Status200OK)]
+        [ProducesResponseType(StatusCodes.Status400BadRequest)]
+        public async Task<ActionResult> SignUpMany([FromBody] IEnumerable<UserCreateDto> newUsers)
+        {
+            foreach (var newUser in newUsers)
+            {
+                await _userService.SignUp(newUser);
+            }
+            return Ok();
+        }
 
         [HttpPost("signIn")]
         [ProducesResponseType(StatusCodes.Status200OK)]
@@ -72,8 +83,23 @@ namespace BackendTeamwork.Controllers
             return Ok(await _userService.SignIn(userSignIn));
         }
 
-        [HttpPut(":{userId}")]
+        [HttpPut("role/{userId}")]
         [Authorize(Roles = "Admin")]
+        [ProducesResponseType(StatusCodes.Status200OK)]
+        [ProducesResponseType(StatusCodes.Status404NotFound)]
+        public async Task<ActionResult<UserReadDto>> UpdateRole(Guid userId, [FromQuery] Role newRole)
+        {
+            UserReadDto? user = await _userService.UpdateRole(userId, newRole);
+
+            if (user is null)
+            {
+                return NotFound();
+            }
+            return Ok(user);
+        }
+
+        [HttpPut("{userId}")]
+        [Authorize(Roles = "Admin, Customer")]
         [ProducesResponseType(StatusCodes.Status200OK)]
         [ProducesResponseType(StatusCodes.Status404NotFound)]
         public async Task<ActionResult<UserReadDto>> UpdateOne(Guid userId, [FromBody] UserUpdateDto updatedUser)
@@ -81,7 +107,7 @@ namespace BackendTeamwork.Controllers
             return Ok(await _userService.UpdateOne(userId, updatedUser));
         }
 
-        [HttpDelete(":{userId}")]
+        [HttpDelete("{userId}")]
         [Authorize(Roles = "Admin")]
         [ProducesResponseType(StatusCodes.Status204NoContent)]
         [ProducesResponseType(StatusCodes.Status404NotFound)]

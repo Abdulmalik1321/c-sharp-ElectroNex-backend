@@ -1,5 +1,7 @@
+using AutoMapper;
 using BackendTeamwork.Abstractions;
 using BackendTeamwork.Databases;
+using BackendTeamwork.DTOs;
 using BackendTeamwork.Entities;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Migrations.Operations;
@@ -10,40 +12,68 @@ namespace BackendTeamwork.Repositories
     {
 
         private DbSet<Wishlist> _wishlists;
+        private DbSet<ProductWishlist> _productWishlist;
+        private DbSet<Product> _products;
+        private IMapper _mapper;
+
         private DatabaseContext _databaseContext;
 
-        public WishlistRepository(DatabaseContext databaseContext)
+        public WishlistRepository(DatabaseContext databaseContext, IMapper mapper)
         {
             _wishlists = databaseContext.Wishlist;
+            _products = databaseContext.Product;
+            _productWishlist = databaseContext.ProductWishlist;
             _databaseContext = databaseContext;
-
+            _mapper = mapper;
         }
 
-        public IEnumerable<Wishlist> FindMany(int limit, int offset)
+        public IEnumerable<Wishlist> FindMany(Guid userId, int limit, int offset)
         {
+            IEnumerable<Wishlist> wishlists = _wishlists.Where(w => w.UserId == userId);
             if (limit == 0 && offset == 0)
             {
-                return _wishlists;
+                return wishlists;
             }
-            return _wishlists.Skip(offset).Take(limit);
+            return wishlists.Skip(offset).Take(limit);
         }
 
 
-        public async Task<Wishlist?> FindOne(Guid wishlistId)
+        public async Task<WishlistReadJoinDto?> FindOne(Guid wishlistId)
         {
+            IQueryable<WishlistReadJoinDto> query = from productWishlist in _productWishlist
+                                                    where productWishlist.WishlistId == wishlistId
+                                                    join wishlist in _wishlists on productWishlist.WishlistId equals wishlist.Id
+                                                    join product in _products on productWishlist.ProductId equals product.Id
+                                                    group product by wishlist.Name into g
+                                                    select new WishlistReadJoinDto
+                                                    {
+                                                        WishlistName = g.Key,
+                                                        Products = g.Select(product => _mapper.Map<ProductJoinDto>(product))
+                                                    };
+
+
+            return await query.FirstOrDefaultAsync();
+        }
+
+        public async Task<Wishlist?> FindOneNoJoin(Guid wishlistId)
+        {
+
             return await _wishlists.AsNoTracking().FirstOrDefaultAsync(wishlist => wishlist.Id == wishlistId);
         }
 
-        public async Task<Wishlist> AddOneProduct(Wishlist wishlist, Product product)
+        public async Task<Wishlist> AddOneProduct(Guid wishlistId, Guid productId)
         {
-            if (wishlist.Products == null)
+
+            ProductWishlist productWishlist = new()
             {
-                wishlist.Products = new List<Product>();
-            }
-            ((List<Product>)wishlist.Products).Add(product);
-            _databaseContext.Update(wishlist);
+                ProductId = productId,
+                WishlistId = wishlistId
+            };
+
+            await _productWishlist.AddAsync(productWishlist);
             await _databaseContext.SaveChangesAsync();
-            return wishlist;
+
+            return await _wishlists.FirstOrDefaultAsync(w => w.Id == wishlistId);
         }
 
         public async Task<Wishlist> CreateOne(Wishlist newWishlist)

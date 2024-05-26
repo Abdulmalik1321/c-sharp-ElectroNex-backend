@@ -1,8 +1,10 @@
 using AutoMapper;
 using BackendTeamwork.Abstractions;
+using BackendTeamwork.Databases;
 using BackendTeamwork.DTOs;
 using BackendTeamwork.Entities;
 using BackendTeamwork.Repositories;
+using Microsoft.EntityFrameworkCore;
 
 namespace BackendTeamwork.Services
 {
@@ -10,12 +12,16 @@ namespace BackendTeamwork.Services
     {
 
         private IStockRepository _stockRepository;
+        private IStockImageRepository _stockImageRepository;
+        private DatabaseContext _databaseContext;
         private IMapper _mapper;
 
-        public StockService(IStockRepository stockRepository, IMapper mapper)
+        public StockService(IStockRepository stockRepository, IMapper mapper, IStockImageRepository stockImageRepository, DatabaseContext databaseContext)
         {
             _stockRepository = stockRepository;
             _mapper = mapper;
+            _stockImageRepository = stockImageRepository;
+            _databaseContext = databaseContext;
         }
 
         public IEnumerable<StockReadDto> FindMany(int limit, int offset)
@@ -36,7 +42,35 @@ namespace BackendTeamwork.Services
         public async Task<StockReadDto> CreateOne(StockCreateDto newStock)
 
         {
-            return _mapper.Map<StockReadDto>(await _stockRepository.CreateOne(_mapper.Map<Stock>(newStock)));
+            using (var transaction = _databaseContext.Database.BeginTransaction())
+            {
+                try
+                {
+                    StockReadDto createdStock = _mapper.Map<StockReadDto>(await _stockRepository.CreateOne(_mapper.Map<Stock>(newStock)));
+
+                    IEnumerable<StockImageCreateDto> imgs = newStock.Images.Select(_mapper.Map<StockImageCreateDto>);
+
+                    foreach (StockImageCreateDto img in imgs)
+                    {
+                        img.StockId = createdStock.Id;
+                        img.Color = createdStock.Color;
+                        img.Size = createdStock.Size;
+                        await _stockImageRepository.CreateOne(_mapper.Map<StockImage>(img));
+                    }
+                    transaction.Commit();
+                    return createdStock;
+                }
+                catch (DbUpdateException ex)
+                {
+                    Console.WriteLine(ex.InnerException.Message);
+                    throw;
+                }
+                catch (Exception)
+                {
+                    transaction.Rollback();
+                    throw new Exception("Something went wrong");
+                }
+            }
         }
 
         public async Task<StockReadDto?> UpdateOne(Guid stockId, StockUpdateDto updatedStock)

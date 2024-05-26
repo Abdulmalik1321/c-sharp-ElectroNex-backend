@@ -4,6 +4,7 @@ using BackendTeamwork.Databases;
 using BackendTeamwork.Enums;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 
@@ -12,9 +13,11 @@ using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 namespace Backend.Migrations
 {
     [DbContext(typeof(DatabaseContext))]
-    partial class DatabaseContextModelSnapshot : ModelSnapshot
+    [Migration("20240518080337_db-init")]
+    partial class dbinit
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -199,8 +202,8 @@ namespace Backend.Migrations
                         .HasColumnName("id")
                         .HasDefaultValueSql("gen_random_uuid()");
 
-                    b.Property<double>("Amount")
-                        .HasColumnType("double precision")
+                    b.Property<int>("Amount")
+                        .HasColumnType("integer")
                         .HasColumnName("amount");
 
                     b.Property<DateTime>("Date")
@@ -285,25 +288,6 @@ namespace Backend.Migrations
                         .HasDatabaseName("ix_product_name");
 
                     b.ToTable("product", (string)null);
-                });
-
-            modelBuilder.Entity("BackendTeamwork.Entities.ProductWishlist", b =>
-                {
-                    b.Property<Guid>("ProductId")
-                        .HasColumnType("uuid")
-                        .HasColumnName("product_id");
-
-                    b.Property<Guid>("WishlistId")
-                        .HasColumnType("uuid")
-                        .HasColumnName("wishlist_id");
-
-                    b.HasKey("ProductId", "WishlistId")
-                        .HasName("pk_product_wishlist");
-
-                    b.HasIndex("WishlistId")
-                        .HasDatabaseName("ix_product_wishlist_wishlist_id");
-
-                    b.ToTable("product_wishlist", (string)null);
                 });
 
             modelBuilder.Entity("BackendTeamwork.Entities.Review", b =>
@@ -563,6 +547,25 @@ namespace Backend.Migrations
                     b.ToTable("wishlist", (string)null);
                 });
 
+            modelBuilder.Entity("ProductWishlist", b =>
+                {
+                    b.Property<Guid>("ProductsId")
+                        .HasColumnType("uuid")
+                        .HasColumnName("products_id");
+
+                    b.Property<Guid>("WishlistsId")
+                        .HasColumnType("uuid")
+                        .HasColumnName("wishlists_id");
+
+                    b.HasKey("ProductsId", "WishlistsId")
+                        .HasName("pk_product_wishlist");
+
+                    b.HasIndex("WishlistsId")
+                        .HasDatabaseName("ix_product_wishlist_wishlists_id");
+
+                    b.ToTable("product_wishlist", (string)null);
+                });
+
             modelBuilder.Entity("BackendTeamwork.Entities.Address", b =>
                 {
                     b.HasOne("BackendTeamwork.Entities.User", "User")
@@ -648,23 +651,6 @@ namespace Backend.Migrations
                     b.Navigation("Brand");
 
                     b.Navigation("Category");
-                });
-
-            modelBuilder.Entity("BackendTeamwork.Entities.ProductWishlist", b =>
-                {
-                    b.HasOne("BackendTeamwork.Entities.Product", null)
-                        .WithMany("Wishlists")
-                        .HasForeignKey("ProductId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired()
-                        .HasConstraintName("fk_product_wishlist_product_product_id");
-
-                    b.HasOne("BackendTeamwork.Entities.Wishlist", null)
-                        .WithMany("Products")
-                        .HasForeignKey("WishlistId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired()
-                        .HasConstraintName("fk_product_wishlist_wishlist_wishlist_id");
                 });
 
             modelBuilder.Entity("BackendTeamwork.Entities.Review", b =>
@@ -754,6 +740,23 @@ namespace Backend.Migrations
                     b.Navigation("User");
                 });
 
+            modelBuilder.Entity("ProductWishlist", b =>
+                {
+                    b.HasOne("BackendTeamwork.Entities.Product", null)
+                        .WithMany()
+                        .HasForeignKey("ProductsId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired()
+                        .HasConstraintName("fk_product_wishlist_product_products_id");
+
+                    b.HasOne("BackendTeamwork.Entities.Wishlist", null)
+                        .WithMany()
+                        .HasForeignKey("WishlistsId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired()
+                        .HasConstraintName("fk_product_wishlist_wishlist_wishlists_id");
+                });
+
             modelBuilder.Entity("BackendTeamwork.Entities.Address", b =>
                 {
                     b.Navigation("Shipping")
@@ -789,8 +792,6 @@ namespace Backend.Migrations
                     b.Navigation("Reviews");
 
                     b.Navigation("Stocks");
-
-                    b.Navigation("Wishlists");
                 });
 
             modelBuilder.Entity("BackendTeamwork.Entities.Stock", b =>
@@ -812,11 +813,6 @@ namespace Backend.Migrations
                     b.Navigation("Reviews");
 
                     b.Navigation("Wishlists");
-                });
-
-            modelBuilder.Entity("BackendTeamwork.Entities.Wishlist", b =>
-                {
-                    b.Navigation("Products");
                 });
 #pragma warning restore 612, 618
         }

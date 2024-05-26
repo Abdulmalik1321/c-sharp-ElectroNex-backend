@@ -25,7 +25,7 @@ namespace BackendTeamwork.Repositories
 
         public IEnumerable<Brand> FindMany(int limit, int offset)
         {
-            return _brands.Skip(offset).Take(limit).ToList();
+            return _brands;
         }
 
         public async Task<Brand?> FindOne(Guid id)

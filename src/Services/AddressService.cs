@@ -28,7 +28,7 @@ namespace BackendTeamwork.Services
 
         public async Task<AddressReadDto?> UpdateOne(Guid addressId, AddressUpdateDto updatedAddress)
         {
-            Address? oldAddress = await _addressRepository.FindOne(addressId);
+            Address? oldAddress = await _addressRepository.FindOneById(addressId);
             if (oldAddress is null)
             {
                 return null;

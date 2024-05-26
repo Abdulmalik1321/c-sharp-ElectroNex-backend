@@ -1,4 +1,5 @@
 
+using BackendTeamwork.DTOs;
 using BackendTeamwork.Entities;
 using BackendTeamwork.Enums;
 
@@ -6,8 +7,11 @@ namespace BackendTeamwork.Abstractions
 {
     public interface IProductRepository
     {
-        public IEnumerable<Product> FindMany(int limit, int offset, SortBy sortBy);
-        public Task<Product?> FindOne(Guid productId);
+        public IEnumerable<ProductJoinDto> FindMany(int limit, int offset, SortBy sortBy, string searchTerm, string categoryFilter, string brandFiltersString);
+        public Task<ProductJoinSingleDto?> FindOne(Guid productId);
+        public Task<Product> AddSale(Guid productId, int quantity);
+
+        public Task<Product?> FindOneNoJoin(Guid productId);
 
         public Task<Product> CreateOne(Product newProduct);
 

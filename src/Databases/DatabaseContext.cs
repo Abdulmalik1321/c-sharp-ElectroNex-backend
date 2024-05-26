@@ -19,17 +19,25 @@ namespace BackendTeamwork.Databases
         public DbSet<Category> Category { get; set; }
         public DbSet<Shipping> Shipping { get; set; }
         public DbSet<Brand> Brand { get; set; }
+        public DbSet<StockImage> StockImage { get; set; }
+        public DbSet<ProductWishlist> ProductWishlist { get; set; }
 
         public DatabaseContext(DbContextOptions<DatabaseContext> options) : base(options) { }
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
+            modelBuilder.Entity<ProductWishlist>()
+                .HasKey(o => new { o.ProductId, o.WishlistId });
             modelBuilder.HasPostgresEnum<Role>();
 
             modelBuilder.HasPostgresExtension("pgcrypto");
 
             modelBuilder.Entity<OrderStock>()
                         .Property(orderStock => orderStock.Id)
+                        .HasDefaultValueSql("gen_random_uuid()");
+
+            modelBuilder.Entity<StockImage>()
+                        .Property(stockImage => stockImage.Id)
                         .HasDefaultValueSql("gen_random_uuid()");
 
             modelBuilder.Entity<User>()
@@ -42,6 +50,10 @@ namespace BackendTeamwork.Databases
 
             modelBuilder.Entity<Category>()
                         .Property(category => category.Id)
+                        .HasDefaultValueSql("gen_random_uuid()");
+
+            modelBuilder.Entity<Brand>()
+                        .Property(brand => brand.Id)
                         .HasDefaultValueSql("gen_random_uuid()");
 
             modelBuilder.Entity<Order>()
@@ -71,6 +83,10 @@ namespace BackendTeamwork.Databases
             modelBuilder.Entity<Product>()
                         .HasIndex(product => product.Name)
                         .IsUnique();
+
+            modelBuilder.Entity<Product>()
+                        .Property(product => product.CreatedAt)
+                        .HasDefaultValueSql("CURRENT_DATE");
 
             modelBuilder.Entity<Review>()
                         .Property(review => review.Id)

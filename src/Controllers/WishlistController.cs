@@ -15,20 +15,20 @@ namespace BackendTeamwork.Controllers
             _wishlistService = wishlistService;
         }
 
-        [HttpGet]
+        [HttpGet("user/{userId}")]
         [ProducesResponseType(StatusCodes.Status200OK)]
-        public ActionResult<IEnumerable<WishlistReadDto>> FindMany([FromQuery(Name = "limit")] int limit, [FromQuery(Name = "offset")] int offset)
+        public ActionResult<IEnumerable<WishlistReadDto>> FindMany(Guid userId, [FromQuery(Name = "limit")] int limit, [FromQuery(Name = "offset")] int offset)
         {
-            return Ok(_wishlistService.FindMany(limit, offset));
+            return Ok(_wishlistService.FindMany(userId, limit, offset));
         }
 
-        [HttpGet(":{wishlistId}")]
+        [HttpGet("{wishlistId}")]
         [Authorize(Roles = "Admin, Customer")]
         [ProducesResponseType(StatusCodes.Status404NotFound)]
         [ProducesResponseType(StatusCodes.Status200OK)]
-        public async Task<ActionResult<WishlistReadDto>> FindOne(Guid wishlistId)
+        public async Task<ActionResult<WishlistReadJoinDto>> FindOne(Guid wishlistId)
         {
-            WishlistReadDto? targetWishlist = await _wishlistService.FindOne(wishlistId);
+            WishlistReadJoinDto? targetWishlist = await _wishlistService.FindOne(wishlistId);
             if (targetWishlist is not null)
             {
                 return Ok(targetWishlist);
@@ -36,8 +36,8 @@ namespace BackendTeamwork.Controllers
             return NotFound();
         }
 
-        [HttpPut(":{wishlistId}/:{productId}")]
-        [Authorize(Roles = "Admin, Customer")]
+        [HttpPut("{wishlistId}/{productId}")]
+        // [Authorize(Roles = "Admin, Customer")]
         [ProducesResponseType(StatusCodes.Status200OK)]
         [ProducesResponseType(StatusCodes.Status404NotFound)]
         public async Task<ActionResult<WishlistReadDto>> AddOneProduct(Guid wishlistId, Guid productId)
@@ -64,11 +64,11 @@ namespace BackendTeamwork.Controllers
             return BadRequest();
         }
 
-        [HttpPut(":WishlistId")]
+        [HttpPut("{WishlistId}")]
         [Authorize(Roles = "Admin, Customer")]
         [ProducesResponseType(StatusCodes.Status200OK)]
         [ProducesResponseType(StatusCodes.Status404NotFound)]
-        public async Task<ActionResult<WishlistReadDto?>> UpdateOne([FromQuery] Guid WishlistId, [FromBody] WishlistUpdateDto updatedWishlist)
+        public async Task<ActionResult<WishlistReadDto?>> UpdateOne(Guid WishlistId, [FromBody] WishlistUpdateDto updatedWishlist)
         {
             WishlistReadDto? targetWishlist = await _wishlistService.UpdateOne(WishlistId, updatedWishlist);
             if (targetWishlist is not null)
@@ -79,7 +79,7 @@ namespace BackendTeamwork.Controllers
         }
 
 
-        [HttpDelete(":wishlistId")]
+        [HttpDelete("{wishlistId}")]
         [Authorize(Roles = "Admin, Customer")]
         [ProducesResponseType(StatusCodes.Status200OK)]
         [ProducesResponseType(StatusCodes.Status404NotFound)]

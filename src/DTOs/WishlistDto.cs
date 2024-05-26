@@ -18,6 +18,13 @@ namespace BackendTeamwork.DTOs
         public string Name { get; set; }
         public Guid UserId { get; set; }
     }
+
+    public class WishlistReadJoinDto
+    {
+
+        public string WishlistName { get; set; }
+        public IEnumerable<ProductJoinDto> Products { get; set; }
+    }
     public class WishlistUpdateDto
     {
         public string Name { get; set; }

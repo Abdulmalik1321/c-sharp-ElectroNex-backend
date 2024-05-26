@@ -16,7 +16,7 @@ namespace BackendTeamwork.Entities
         public Guid UserId { get; set; }
 
         public User User { get; set; }
-        public IEnumerable<Product> Products { get; set; }
+        public IEnumerable<ProductWishlist> Products { get; set; }
 
     }
 }

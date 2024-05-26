@@ -28,66 +28,76 @@ namespace BackendTeamwork.Services
         }
 
 
-        public IEnumerable<ProductReadDto> FindMany(int limit, int offset, SortBy sortBy)
+        public IEnumerable<ProductJoinDto> FindMany(int limit, int offset, SortBy sortBy, string searchTerm, string categoryFilter, string brandFilter)
         {
-            return _productRepository.FindMany(limit, offset, sortBy).Select(_mapper.Map<ProductReadDto>);
+            return _productRepository.FindMany(limit, offset, sortBy, searchTerm, categoryFilter, brandFilter);
         }
 
-        public async Task<ProductReadDto?> FindOne(Guid productId)
+        public async Task<ProductJoinSingleDto?> FindOne(Guid productId)
         {
-            return _mapper.Map<ProductReadDto>(await _productRepository.FindOne(productId));
+            return await _productRepository.FindOne(productId);
+        }
+
+        public async Task<ProductReadDto?> AddSale(Guid productId, int quantity)
+        {
+            return _mapper.Map<ProductReadDto>(await _productRepository.AddSale(productId, quantity));
         }
 
         public async Task<ProductReadDto> CreateOne(ProductCreateDto newProduct)
         {
-            if (newProduct.Name.Length < 1 || newProduct.Description.Length < 1
-            || newProduct.Image.Length < 1) throw CustomErrorException.InvalidData("Invalid input");
+            // if (newProduct.Name.Length < 1 || newProduct.Description.Length < 1
+            // || newProduct.Image.Length < 1) throw CustomErrorException.InvalidData("Invalid input");
 
-            using (var transaction = _databaseContext.Database.BeginTransaction())
+            // using (var transaction = _databaseContext.Database.BeginTransaction())
+            // {
+            //     try
+            //     {
+            Product product = await _productRepository.CreateOne(_mapper.Map<Product>(newProduct));
+            if (newProduct.NewStocks is not null)
             {
-                try
-                {
-                    Product product = await _productRepository.CreateOne(_mapper.Map<Product>(newProduct));
-                    if (newProduct.NewStocks is not null)
-                    {
-                        IEnumerable<StockCreateDto> stocks = newProduct.NewStocks.Select(_mapper.Map<StockCreateDto>);
+                IEnumerable<StockCreateDto> stocks = newProduct.NewStocks.Select(_mapper.Map<StockCreateDto>);
 
-                        foreach (StockCreateDto stock in stocks)
-                        {
-                            stock.ProductId = product.Id;
-                            await _stockService.CreateOne(stock);
-                        }
-                    }
-
-                    transaction.Commit();
-                    return _mapper.Map<ProductReadDto>(product);
-                }
-                catch (DbUpdateException ex)
+                foreach (StockCreateDto stock in stocks)
                 {
-                    Console.WriteLine(ex.InnerException.Message);
-                    throw;
-                }
-                catch (Exception)
-                {
-                    transaction.Rollback();
-                    throw new Exception("Something went wrong");
+                    stock.ProductId = product.Id;
+                    await _stockService.CreateOne(stock);
                 }
             }
+
+            // transaction.Commit();
+            return _mapper.Map<ProductReadDto>(product);
+            //     }
+            //     catch (DbUpdateException ex)
+            //     {
+            //         Console.WriteLine(ex.InnerException.Message);
+            //         throw;
+            //     }
+            //     catch (Exception)
+            //     {
+            //         transaction.Rollback();
+            //         throw new Exception("Something went wrong");
+            //     }
+            // }
         }
 
         public async Task<ProductReadDto?> UpdateOne(Guid productId, ProductUpdateDto updatedProduct)
         {
-            Product? oldProduct = await _productRepository.FindOne(productId);
+            Product? oldProduct = _mapper.Map<Product>(await _productRepository.FindOneNoJoin(productId));
             if (oldProduct is null) throw CustomErrorException.NotFound("Product is not found");
+            oldProduct.Name = updatedProduct.Name;
+            oldProduct.Description = updatedProduct.Description;
+            oldProduct.Status = updatedProduct.Status;
+            oldProduct.CategoryId = updatedProduct.CategoryId;
+            oldProduct.BrandId = updatedProduct.BrandId;
 
-            Product product = _mapper.Map<Product>(updatedProduct);
-            product.Id = productId;
-            return _mapper.Map<ProductReadDto>(await _productRepository.UpdateOne(product));
+
+
+            return _mapper.Map<ProductReadDto>(await _productRepository.UpdateOne(oldProduct));
         }
 
         public async Task<ProductReadDto?> DeleteOne(Guid productId)
         {
-            Product? targetProduct = await _productRepository.FindOne(productId);
+            Product? targetProduct = _mapper.Map<Product>(await _productRepository.FindOneNoJoin(productId));
             if (targetProduct is null) throw CustomErrorException.NotFound("Product is not found");
 
             return _mapper.Map<ProductReadDto>(await _productRepository.DeleteOne(targetProduct));

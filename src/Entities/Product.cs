@@ -15,11 +15,13 @@ namespace BackendTeamwork.Entities
         [Required, StringLength(100)]
         public string Name { get; set; }
 
-        [Required, StringLength(200)]
-        public string Image { get; set; }
 
         [Required, StringLength(500)]
         public string Description { get; set; }
+
+        public string Status { get; set; }
+        public DateTime CreatedAt { get; set; }
+        public int NumberOfSales { get; set; } = 0;
 
         [Required, ForeignKey("Category")]
         public Guid CategoryId { get; set; }
@@ -29,7 +31,7 @@ namespace BackendTeamwork.Entities
 
         public Category Category { get; set; }
         public Brand Brand { get; set; }
-        public IEnumerable<Wishlist> Wishlists { get; set; }
+        public IEnumerable<ProductWishlist> Wishlists { get; set; }
         public IEnumerable<Review> Reviews { get; set; }
         public IEnumerable<Stock> Stocks { get; set; }
 

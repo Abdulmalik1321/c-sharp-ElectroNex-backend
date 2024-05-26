@@ -16,15 +16,15 @@ namespace BackendTeamwork.Controllers
             _reviewService = reviewService;
         }
 
-        [HttpGet]
+        [HttpGet("product/{productId}")]
         [Authorize(Roles = "Admin, Customer")]
         [ProducesResponseType(StatusCodes.Status200OK)]
-        public ActionResult<IEnumerable<Review>> FindMany([FromQuery(Name = "limit")] int limit, [FromQuery(Name = "offset")] int offset)
+        public ActionResult<IEnumerable<ReviewReadDto>> FindMany(Guid productId, [FromQuery(Name = "limit")] int limit, [FromQuery(Name = "offset")] int offset)
         {
-            return Ok(_reviewService.FindMany(limit, offset));
+            return Ok(_reviewService.FindMany(productId, limit, offset));
         }
 
-        [HttpGet(":reviewId")]
+        [HttpGet("{reviewId}")]
         [Authorize(Roles = "Admin, Customer")]
         [ProducesResponseType(StatusCodes.Status200OK)]
         [ProducesResponseType(StatusCodes.Status404NotFound)]
@@ -47,7 +47,7 @@ namespace BackendTeamwork.Controllers
             return NotFound();
         }
 
-        [HttpPut(":reviewId")]
+        [HttpPut("{reviewId}")]
         [Authorize(Roles = "Admin, Customer")]
         [ProducesResponseType(StatusCodes.Status200OK)]
         [ProducesResponseType(StatusCodes.Status404NotFound)]

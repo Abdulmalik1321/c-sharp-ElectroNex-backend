@@ -16,7 +16,7 @@ namespace BackendTeamwork.Controllers
             _shippingService = shippingService;
         }
 
-        [HttpGet(":{shippingId}")]
+        [HttpGet("{shippingId}")]
         [Authorize(Roles = "Admin, Customer")]
         [ProducesResponseType(StatusCodes.Status200OK)]
         [ProducesResponseType(StatusCodes.Status404NotFound)]
@@ -51,7 +51,7 @@ namespace BackendTeamwork.Controllers
             return Ok(shipping);
         }
 
-        [HttpPut(":{shippingId}")]
+        [HttpPut("{shippingId}")]
         [Authorize(Roles = "Admin")]
         [ProducesResponseType(StatusCodes.Status200OK)]
         [ProducesResponseType(StatusCodes.Status404NotFound)]
@@ -62,7 +62,7 @@ namespace BackendTeamwork.Controllers
             return Ok(shipping);
         }
 
-        [HttpDelete(":{shippingId}")]
+        [HttpDelete("{shippingId}")]
         [Authorize(Roles = "Admin")]
         [ProducesResponseType(StatusCodes.Status204NoContent)]
         [ProducesResponseType(StatusCodes.Status404NotFound)]

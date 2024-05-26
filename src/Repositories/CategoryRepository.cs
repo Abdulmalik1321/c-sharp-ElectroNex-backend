@@ -25,7 +25,7 @@ namespace BackendTeamwork.Repositories
 
         public IEnumerable<Category> FindMany(int limit, int offset)
         {
-            return _categories.Skip(offset).Take(limit).ToList();
+            return _categories;
         }
 
         public async Task<Category?> FindOne(Guid id)
