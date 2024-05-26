@@ -9,7 +9,7 @@ namespace BackendTeamwork.Entities
         [Key]
         public Guid Id { get; set; }
         [Required]
-        public int Price { get; set; }
+        public double Price { get; set; }
         [Required]
         public int Quantity { get; set; }
 

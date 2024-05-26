@@ -7,7 +7,7 @@ namespace BackendTeamwork.DTOs
     public class PaymentCreateDto
     {
         [Required]
-        public int Amount { get; set; }
+        public double Amount { get; set; }
         [Required, StringLength(30)]
         public string Method { get; set; }
         [Required, ForeignKey("User")]
@@ -19,7 +19,7 @@ namespace BackendTeamwork.DTOs
     public class PaymentReadDto
     {
         public Guid Id { get; set; }
-        public int Amount { get; set; }
+        public double Amount { get; set; }
         public string Method { get; set; }
         public DateTime Date { get; set; }
         public Guid UserId { get; set; }

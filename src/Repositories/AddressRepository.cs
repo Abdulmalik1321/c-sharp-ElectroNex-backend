@@ -20,6 +20,11 @@ namespace BackendTeamwork.Repositories
 
         public async Task<Address?> FindOne(Guid AddressId)
         {
+            return await _addresses.AsNoTracking().FirstOrDefaultAsync(address => address.UserId == AddressId);
+        }
+
+        public async Task<Address?> FindOneById(Guid AddressId)
+        {
             return await _addresses.AsNoTracking().FirstOrDefaultAsync(address => address.Id == AddressId);
         }
 

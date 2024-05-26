@@ -11,7 +11,7 @@ namespace BackendTeamwork.Entities
         public Guid Id { get; set; }
 
         [Required]
-        public int Amount { get; set; }
+        public double Amount { get; set; }
 
         [Required, StringLength(30)]
         public string Method { get; set; }

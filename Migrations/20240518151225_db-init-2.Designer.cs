@@ -13,8 +13,8 @@ using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 namespace Backend.Migrations
 {
     [DbContext(typeof(DatabaseContext))]
-    [Migration("20240507200508_db-init")]
-    partial class dbinit
+    [Migration("20240518151225_db-init-2")]
+    partial class dbinit2
     {
         /// <inheritdoc />
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
@@ -65,6 +65,31 @@ namespace Backend.Migrations
                         .HasDatabaseName("ix_address_user_id");
 
                     b.ToTable("address", (string)null);
+                });
+
+            modelBuilder.Entity("BackendTeamwork.Entities.Brand", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("uuid")
+                        .HasColumnName("id")
+                        .HasDefaultValueSql("gen_random_uuid()");
+
+                    b.Property<string>("Description")
+                        .IsRequired()
+                        .HasColumnType("text")
+                        .HasColumnName("description");
+
+                    b.Property<string>("Name")
+                        .IsRequired()
+                        .HasMaxLength(30)
+                        .HasColumnType("character varying(30)")
+                        .HasColumnName("name");
+
+                    b.HasKey("Id")
+                        .HasName("pk_brand");
+
+                    b.ToTable("brand", (string)null);
                 });
 
             modelBuilder.Entity("BackendTeamwork.Entities.Category", b =>
@@ -145,8 +170,8 @@ namespace Backend.Migrations
                         .HasColumnType("uuid")
                         .HasColumnName("order_id");
 
-                    b.Property<int>("Price")
-                        .HasColumnType("integer")
+                    b.Property<double>("Price")
+                        .HasColumnType("double precision")
                         .HasColumnName("price");
 
                     b.Property<int>("Quantity")
@@ -214,9 +239,19 @@ namespace Backend.Migrations
                         .HasColumnName("id")
                         .HasDefaultValueSql("gen_random_uuid()");
 
+                    b.Property<Guid>("BrandId")
+                        .HasColumnType("uuid")
+                        .HasColumnName("brand_id");
+
                     b.Property<Guid>("CategoryId")
                         .HasColumnType("uuid")
                         .HasColumnName("category_id");
+
+                    b.Property<DateTime?>("CreatedAt")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("timestamp with time zone")
+                        .HasColumnName("created_at")
+                        .HasDefaultValueSql("CURRENT_DATE");
 
                     b.Property<string>("Description")
                         .IsRequired()
@@ -224,20 +259,26 @@ namespace Backend.Migrations
                         .HasColumnType("character varying(500)")
                         .HasColumnName("description");
 
-                    b.Property<string>("Image")
-                        .IsRequired()
-                        .HasMaxLength(200)
-                        .HasColumnType("character varying(200)")
-                        .HasColumnName("image");
-
                     b.Property<string>("Name")
                         .IsRequired()
                         .HasMaxLength(100)
                         .HasColumnType("character varying(100)")
                         .HasColumnName("name");
 
+                    b.Property<int>("NumberOfSales")
+                        .HasColumnType("integer")
+                        .HasColumnName("number_of_sales");
+
+                    b.Property<string>("Status")
+                        .IsRequired()
+                        .HasColumnType("text")
+                        .HasColumnName("status");
+
                     b.HasKey("Id")
                         .HasName("pk_product");
+
+                    b.HasIndex("BrandId")
+                        .HasDatabaseName("ix_product_brand_id");
 
                     b.HasIndex("CategoryId")
                         .HasDatabaseName("ix_product_category_id");
@@ -348,8 +389,14 @@ namespace Backend.Migrations
                         .HasColumnType("character varying(30)")
                         .HasColumnName("color");
 
-                    b.Property<int>("Price")
-                        .HasColumnType("integer")
+                    b.Property<string>("Condition")
+                        .IsRequired()
+                        .HasMaxLength(30)
+                        .HasColumnType("character varying(30)")
+                        .HasColumnName("condition");
+
+                    b.Property<double>("Price")
+                        .HasColumnType("double precision")
                         .HasColumnName("price");
 
                     b.Property<Guid>("ProductId")
@@ -366,13 +413,60 @@ namespace Backend.Migrations
                         .HasColumnType("character varying(30)")
                         .HasColumnName("size");
 
+                    b.Property<Guid>("UserId")
+                        .HasColumnType("uuid")
+                        .HasColumnName("user_id");
+
                     b.HasKey("Id")
                         .HasName("pk_stock");
 
                     b.HasIndex("ProductId")
                         .HasDatabaseName("ix_stock_product_id");
 
+                    b.HasIndex("UserId")
+                        .HasDatabaseName("ix_stock_user_id");
+
                     b.ToTable("stock", (string)null);
+                });
+
+            modelBuilder.Entity("BackendTeamwork.Entities.StockImage", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("uuid")
+                        .HasColumnName("id")
+                        .HasDefaultValueSql("gen_random_uuid()");
+
+                    b.Property<string>("Color")
+                        .IsRequired()
+                        .HasColumnType("text")
+                        .HasColumnName("color");
+
+                    b.Property<bool>("IsMain")
+                        .HasColumnType("boolean")
+                        .HasColumnName("is_main");
+
+                    b.Property<string>("Size")
+                        .IsRequired()
+                        .HasColumnType("text")
+                        .HasColumnName("size");
+
+                    b.Property<Guid>("StockId")
+                        .HasColumnType("uuid")
+                        .HasColumnName("stock_id");
+
+                    b.Property<string>("Url")
+                        .IsRequired()
+                        .HasColumnType("text")
+                        .HasColumnName("url");
+
+                    b.HasKey("Id")
+                        .HasName("pk_stock_image");
+
+                    b.HasIndex("StockId")
+                        .HasDatabaseName("ix_stock_image_stock_id");
+
+                    b.ToTable("stock_image", (string)null);
                 });
 
             modelBuilder.Entity("BackendTeamwork.Entities.User", b =>
@@ -540,12 +634,21 @@ namespace Backend.Migrations
 
             modelBuilder.Entity("BackendTeamwork.Entities.Product", b =>
                 {
+                    b.HasOne("BackendTeamwork.Entities.Brand", "Brand")
+                        .WithMany("Products")
+                        .HasForeignKey("BrandId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired()
+                        .HasConstraintName("fk_product_brand_brand_id");
+
                     b.HasOne("BackendTeamwork.Entities.Category", "Category")
                         .WithMany("Products")
                         .HasForeignKey("CategoryId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired()
                         .HasConstraintName("fk_product_category_category_id");
+
+                    b.Navigation("Brand");
 
                     b.Navigation("Category");
                 });
@@ -601,7 +704,28 @@ namespace Backend.Migrations
                         .IsRequired()
                         .HasConstraintName("fk_stock_product_product_id");
 
+                    b.HasOne("BackendTeamwork.Entities.User", "User")
+                        .WithMany()
+                        .HasForeignKey("UserId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired()
+                        .HasConstraintName("fk_stock_user_user_id");
+
                     b.Navigation("Product");
+
+                    b.Navigation("User");
+                });
+
+            modelBuilder.Entity("BackendTeamwork.Entities.StockImage", b =>
+                {
+                    b.HasOne("BackendTeamwork.Entities.Stock", "Stock")
+                        .WithMany("StockImage")
+                        .HasForeignKey("StockId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired()
+                        .HasConstraintName("fk_stock_image_stock_stock_id");
+
+                    b.Navigation("Stock");
                 });
 
             modelBuilder.Entity("BackendTeamwork.Entities.Wishlist", b =>
@@ -639,6 +763,11 @@ namespace Backend.Migrations
                         .IsRequired();
                 });
 
+            modelBuilder.Entity("BackendTeamwork.Entities.Brand", b =>
+                {
+                    b.Navigation("Products");
+                });
+
             modelBuilder.Entity("BackendTeamwork.Entities.Category", b =>
                 {
                     b.Navigation("Products");
@@ -668,6 +797,8 @@ namespace Backend.Migrations
             modelBuilder.Entity("BackendTeamwork.Entities.Stock", b =>
                 {
                     b.Navigation("OrderStocks");
+
+                    b.Navigation("StockImage");
                 });
 
             modelBuilder.Entity("BackendTeamwork.Entities.User", b =>

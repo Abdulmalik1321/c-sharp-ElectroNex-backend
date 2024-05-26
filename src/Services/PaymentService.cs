@@ -11,11 +11,12 @@ namespace BackendTeamwork.Controllers
         private IMapper _mapper;
         private IOrderService _orderService;
         private IStockService _stockService;
+        private IProductService _productService;
         private DatabaseContext _databaseContext;
         private IPaymentRepository _paymentRepository;
         private IOrderStockService _orderStockService;
 
-        public PaymentService(IPaymentRepository PaymentRepository, IMapper mapper, IOrderService orderService, IOrderStockService orderStockService, IStockService stockService, DatabaseContext databaseContext)
+        public PaymentService(IPaymentRepository PaymentRepository, IMapper mapper, IOrderService orderService, IOrderStockService orderStockService, IStockService stockService, DatabaseContext databaseContext, IProductService productService)
         {
             _mapper = mapper;
             _stockService = stockService;
@@ -23,6 +24,7 @@ namespace BackendTeamwork.Controllers
             _databaseContext = databaseContext;
             _paymentRepository = PaymentRepository;
             _orderStockService = orderStockService;
+            _productService = productService;
         }
         public async Task<PaymentReadDto?> FindOne(Guid paymentId)
         {
@@ -53,6 +55,7 @@ namespace BackendTeamwork.Controllers
                         item.OrderId = order.Id;
                         Stock stock = await _stockService.ReduceOne(_mapper.Map<OrderStockReduceDto>(item));
                         item.Price = stock.Price;
+                        // await _productService.AddSale(stock.ProductId, item.Quantity);
                         await _orderStockService.CreateOne(item);
                     }
 

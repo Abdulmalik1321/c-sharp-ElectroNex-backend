@@ -20,27 +20,24 @@ namespace BackendTeamwork.Services
         }
 
 
-        public IEnumerable<WishlistReadDto> FindMany(int limit, int offset)
+        public IEnumerable<WishlistReadDto> FindMany(Guid userId, int limit, int offset)
         {
-            return _wishlistRepository.FindMany(limit, offset).Select(_mapper.Map<WishlistReadDto>);
+            return _wishlistRepository.FindMany(userId, limit, offset).Select(_mapper.Map<WishlistReadDto>);
         }
 
-        public async Task<WishlistReadDto?> FindOne(Guid wishlistId)
+        public async Task<WishlistReadJoinDto?> FindOne(Guid wishlistId)
+        {
+            return await _wishlistRepository.FindOne(wishlistId);
+        }
+        public async Task<WishlistReadDto?> FindOneNoJoin(Guid wishlistId)
         {
             return _mapper.Map<WishlistReadDto>(await _wishlistRepository.FindOne(wishlistId));
         }
-
         public async Task<WishlistReadDto?> AddOneProduct(Guid wishlistId, Guid productId)
         {
-            Wishlist? wishlist = await _wishlistRepository.FindOne(wishlistId);
-            Product? product = await _productRepository.FindOne(productId);
-            if (wishlist is null || product is null)
-            {
-                return null;
-            }
-            wishlist.Id = wishlistId;
-            product.Id = productId;
-            return _mapper.Map<WishlistReadDto>(await _wishlistRepository.AddOneProduct(wishlist, product));
+
+
+            return _mapper.Map<WishlistReadDto>(await _wishlistRepository.AddOneProduct(wishlistId, productId));
         }
 
 
@@ -51,7 +48,7 @@ namespace BackendTeamwork.Services
 
         public async Task<WishlistReadDto?> UpdateOne(Guid wishlistId, WishlistUpdateDto updatedWishlist)
         {
-            Wishlist? oldWishlist = await _wishlistRepository.FindOne(wishlistId);
+            Wishlist? oldWishlist = await _wishlistRepository.FindOneNoJoin(wishlistId);
             if (oldWishlist is null)
             {
                 return null;
@@ -63,7 +60,7 @@ namespace BackendTeamwork.Services
 
         public async Task<WishlistReadDto?> DeleteOne(Guid wishlistId)
         {
-            Wishlist? targetWishlist = await _wishlistRepository.FindOne(wishlistId);
+            Wishlist? targetWishlist = await _wishlistRepository.FindOneNoJoin(wishlistId);
             if (targetWishlist is not null)
             {
                 return _mapper.Map<WishlistReadDto>(await _wishlistRepository.DeleteOne(targetWishlist));

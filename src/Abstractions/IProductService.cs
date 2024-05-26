@@ -7,9 +7,10 @@ namespace BackendTeamwork.Abstractions
 {
     public interface IProductService
     {
-        public IEnumerable<ProductReadDto> FindMany(int limit, int offset, SortBy sortBy);
+        public IEnumerable<ProductJoinDto> FindMany(int limit, int offset, SortBy sortBy, string searchTerm, string categoryFilter, string brandFiltersString);
 
-        public Task<ProductReadDto?> FindOne(Guid productId);
+        public Task<ProductJoinSingleDto?> FindOne(Guid productId);
+        public Task<ProductReadDto?> AddSale(Guid productId, int quantity);
 
         public Task<ProductReadDto> CreateOne(ProductCreateDto newProduct);
 

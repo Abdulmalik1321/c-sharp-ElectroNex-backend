@@ -17,6 +17,19 @@ namespace Backend.Migrations
                 .Annotation("Npgsql:PostgresExtension:pgcrypto", ",,");
 
             migrationBuilder.CreateTable(
+                name: "brand",
+                columns: table => new
+                {
+                    id = table.Column<Guid>(type: "uuid", nullable: false, defaultValueSql: "gen_random_uuid()"),
+                    name = table.Column<string>(type: "character varying(30)", maxLength: 30, nullable: false),
+                    description = table.Column<string>(type: "text", nullable: false)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("pk_brand", x => x.id);
+                });
+
+            migrationBuilder.CreateTable(
                 name: "category",
                 columns: table => new
                 {
@@ -52,13 +65,22 @@ namespace Backend.Migrations
                 {
                     id = table.Column<Guid>(type: "uuid", nullable: false, defaultValueSql: "gen_random_uuid()"),
                     name = table.Column<string>(type: "character varying(100)", maxLength: 100, nullable: false),
-                    image = table.Column<string>(type: "character varying(200)", maxLength: 200, nullable: false),
                     description = table.Column<string>(type: "character varying(500)", maxLength: 500, nullable: false),
-                    category_id = table.Column<Guid>(type: "uuid", nullable: false)
+                    status = table.Column<string>(type: "text", nullable: false),
+                    created_at = table.Column<DateTime>(type: "timestamp with time zone", nullable: false, defaultValueSql: "CURRENT_DATE"),
+                    number_of_sales = table.Column<int>(type: "integer", nullable: false),
+                    category_id = table.Column<Guid>(type: "uuid", nullable: false),
+                    brand_id = table.Column<Guid>(type: "uuid", nullable: false)
                 },
                 constraints: table =>
                 {
                     table.PrimaryKey("pk_product", x => x.id);
+                    table.ForeignKey(
+                        name: "fk_product_brand_brand_id",
+                        column: x => x.brand_id,
+                        principalTable: "brand",
+                        principalColumn: "id",
+                        onDelete: ReferentialAction.Cascade);
                     table.ForeignKey(
                         name: "fk_product_category_category_id",
                         column: x => x.category_id,
@@ -160,11 +182,13 @@ namespace Backend.Migrations
                 columns: table => new
                 {
                     id = table.Column<Guid>(type: "uuid", nullable: false, defaultValueSql: "gen_random_uuid()"),
-                    price = table.Column<int>(type: "integer", nullable: false),
+                    price = table.Column<double>(type: "double precision", nullable: false),
                     quantity = table.Column<int>(type: "integer", nullable: false),
                     size = table.Column<string>(type: "character varying(30)", maxLength: 30, nullable: false),
                     color = table.Column<string>(type: "character varying(30)", maxLength: 30, nullable: false),
-                    product_id = table.Column<Guid>(type: "uuid", nullable: false)
+                    condition = table.Column<string>(type: "character varying(30)", maxLength: 30, nullable: false),
+                    product_id = table.Column<Guid>(type: "uuid", nullable: false),
+                    user_id = table.Column<Guid>(type: "uuid", nullable: false)
                 },
                 constraints: table =>
                 {
@@ -173,6 +197,12 @@ namespace Backend.Migrations
                         name: "fk_stock_product_product_id",
                         column: x => x.product_id,
                         principalTable: "product",
+                        principalColumn: "id",
+                        onDelete: ReferentialAction.Cascade);
+                    table.ForeignKey(
+                        name: "fk_stock_user_user_id",
+                        column: x => x.user_id,
+                        principalTable: "user",
                         principalColumn: "id",
                         onDelete: ReferentialAction.Cascade);
                 });
@@ -229,11 +259,33 @@ namespace Backend.Migrations
                 });
 
             migrationBuilder.CreateTable(
+                name: "stock_image",
+                columns: table => new
+                {
+                    id = table.Column<Guid>(type: "uuid", nullable: false, defaultValueSql: "gen_random_uuid()"),
+                    stock_id = table.Column<Guid>(type: "uuid", nullable: false),
+                    url = table.Column<string>(type: "text", nullable: false),
+                    is_main = table.Column<bool>(type: "boolean", nullable: false),
+                    color = table.Column<string>(type: "text", nullable: false),
+                    size = table.Column<string>(type: "text", nullable: false)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("pk_stock_image", x => x.id);
+                    table.ForeignKey(
+                        name: "fk_stock_image_stock_stock_id",
+                        column: x => x.stock_id,
+                        principalTable: "stock",
+                        principalColumn: "id",
+                        onDelete: ReferentialAction.Cascade);
+                });
+
+            migrationBuilder.CreateTable(
                 name: "order_stock",
                 columns: table => new
                 {
                     id = table.Column<Guid>(type: "uuid", nullable: false, defaultValueSql: "gen_random_uuid()"),
-                    price = table.Column<int>(type: "integer", nullable: false),
+                    price = table.Column<double>(type: "double precision", nullable: false),
                     quantity = table.Column<int>(type: "integer", nullable: false),
                     order_id = table.Column<Guid>(type: "uuid", nullable: false),
                     stock_id = table.Column<Guid>(type: "uuid", nullable: false)
@@ -316,6 +368,11 @@ namespace Backend.Migrations
                 column: "user_id");
 
             migrationBuilder.CreateIndex(
+                name: "ix_product_brand_id",
+                table: "product",
+                column: "brand_id");
+
+            migrationBuilder.CreateIndex(
                 name: "ix_product_category_id",
                 table: "product",
                 column: "category_id");
@@ -359,6 +416,16 @@ namespace Backend.Migrations
                 column: "product_id");
 
             migrationBuilder.CreateIndex(
+                name: "ix_stock_user_id",
+                table: "stock",
+                column: "user_id");
+
+            migrationBuilder.CreateIndex(
+                name: "ix_stock_image_stock_id",
+                table: "stock_image",
+                column: "stock_id");
+
+            migrationBuilder.CreateIndex(
                 name: "ix_user_email",
                 table: "user",
                 column: "email",
@@ -386,7 +453,7 @@ namespace Backend.Migrations
                 name: "shipping");
 
             migrationBuilder.DropTable(
-                name: "stock");
+                name: "stock_image");
 
             migrationBuilder.DropTable(
                 name: "wishlist");
@@ -398,16 +465,22 @@ namespace Backend.Migrations
                 name: "order");
 
             migrationBuilder.DropTable(
-                name: "product");
+                name: "stock");
 
             migrationBuilder.DropTable(
                 name: "payment");
 
             migrationBuilder.DropTable(
-                name: "category");
+                name: "product");
 
             migrationBuilder.DropTable(
                 name: "user");
+
+            migrationBuilder.DropTable(
+                name: "brand");
+
+            migrationBuilder.DropTable(
+                name: "category");
         }
     }
 }

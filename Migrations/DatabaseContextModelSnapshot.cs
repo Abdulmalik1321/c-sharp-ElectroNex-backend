@@ -64,6 +64,31 @@ namespace Backend.Migrations
                     b.ToTable("address", (string)null);
                 });
 
+            modelBuilder.Entity("BackendTeamwork.Entities.Brand", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("uuid")
+                        .HasColumnName("id")
+                        .HasDefaultValueSql("gen_random_uuid()");
+
+                    b.Property<string>("Description")
+                        .IsRequired()
+                        .HasColumnType("text")
+                        .HasColumnName("description");
+
+                    b.Property<string>("Name")
+                        .IsRequired()
+                        .HasMaxLength(30)
+                        .HasColumnType("character varying(30)")
+                        .HasColumnName("name");
+
+                    b.HasKey("Id")
+                        .HasName("pk_brand");
+
+                    b.ToTable("brand", (string)null);
+                });
+
             modelBuilder.Entity("BackendTeamwork.Entities.Category", b =>
                 {
                     b.Property<Guid>("Id")
@@ -142,8 +167,8 @@ namespace Backend.Migrations
                         .HasColumnType("uuid")
                         .HasColumnName("order_id");
 
-                    b.Property<int>("Price")
-                        .HasColumnType("integer")
+                    b.Property<double>("Price")
+                        .HasColumnType("double precision")
                         .HasColumnName("price");
 
                     b.Property<int>("Quantity")
@@ -174,8 +199,8 @@ namespace Backend.Migrations
                         .HasColumnName("id")
                         .HasDefaultValueSql("gen_random_uuid()");
 
-                    b.Property<int>("Amount")
-                        .HasColumnType("integer")
+                    b.Property<double>("Amount")
+                        .HasColumnType("double precision")
                         .HasColumnName("amount");
 
                     b.Property<DateTime>("Date")
@@ -211,9 +236,19 @@ namespace Backend.Migrations
                         .HasColumnName("id")
                         .HasDefaultValueSql("gen_random_uuid()");
 
+                    b.Property<Guid>("BrandId")
+                        .HasColumnType("uuid")
+                        .HasColumnName("brand_id");
+
                     b.Property<Guid>("CategoryId")
                         .HasColumnType("uuid")
                         .HasColumnName("category_id");
+
+                    b.Property<DateTime>("CreatedAt")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("timestamp with time zone")
+                        .HasColumnName("created_at")
+                        .HasDefaultValueSql("CURRENT_DATE");
 
                     b.Property<string>("Description")
                         .IsRequired()
@@ -221,20 +256,26 @@ namespace Backend.Migrations
                         .HasColumnType("character varying(500)")
                         .HasColumnName("description");
 
-                    b.Property<string>("Image")
-                        .IsRequired()
-                        .HasMaxLength(200)
-                        .HasColumnType("character varying(200)")
-                        .HasColumnName("image");
-
                     b.Property<string>("Name")
                         .IsRequired()
                         .HasMaxLength(100)
                         .HasColumnType("character varying(100)")
                         .HasColumnName("name");
 
+                    b.Property<int>("NumberOfSales")
+                        .HasColumnType("integer")
+                        .HasColumnName("number_of_sales");
+
+                    b.Property<string>("Status")
+                        .IsRequired()
+                        .HasColumnType("text")
+                        .HasColumnName("status");
+
                     b.HasKey("Id")
                         .HasName("pk_product");
+
+                    b.HasIndex("BrandId")
+                        .HasDatabaseName("ix_product_brand_id");
 
                     b.HasIndex("CategoryId")
                         .HasDatabaseName("ix_product_category_id");
@@ -244,6 +285,25 @@ namespace Backend.Migrations
                         .HasDatabaseName("ix_product_name");
 
                     b.ToTable("product", (string)null);
+                });
+
+            modelBuilder.Entity("BackendTeamwork.Entities.ProductWishlist", b =>
+                {
+                    b.Property<Guid>("ProductId")
+                        .HasColumnType("uuid")
+                        .HasColumnName("product_id");
+
+                    b.Property<Guid>("WishlistId")
+                        .HasColumnType("uuid")
+                        .HasColumnName("wishlist_id");
+
+                    b.HasKey("ProductId", "WishlistId")
+                        .HasName("pk_product_wishlist");
+
+                    b.HasIndex("WishlistId")
+                        .HasDatabaseName("ix_product_wishlist_wishlist_id");
+
+                    b.ToTable("product_wishlist", (string)null);
                 });
 
             modelBuilder.Entity("BackendTeamwork.Entities.Review", b =>
@@ -345,8 +405,14 @@ namespace Backend.Migrations
                         .HasColumnType("character varying(30)")
                         .HasColumnName("color");
 
-                    b.Property<int>("Price")
-                        .HasColumnType("integer")
+                    b.Property<string>("Condition")
+                        .IsRequired()
+                        .HasMaxLength(30)
+                        .HasColumnType("character varying(30)")
+                        .HasColumnName("condition");
+
+                    b.Property<double>("Price")
+                        .HasColumnType("double precision")
                         .HasColumnName("price");
 
                     b.Property<Guid>("ProductId")
@@ -363,13 +429,60 @@ namespace Backend.Migrations
                         .HasColumnType("character varying(30)")
                         .HasColumnName("size");
 
+                    b.Property<Guid>("UserId")
+                        .HasColumnType("uuid")
+                        .HasColumnName("user_id");
+
                     b.HasKey("Id")
                         .HasName("pk_stock");
 
                     b.HasIndex("ProductId")
                         .HasDatabaseName("ix_stock_product_id");
 
+                    b.HasIndex("UserId")
+                        .HasDatabaseName("ix_stock_user_id");
+
                     b.ToTable("stock", (string)null);
+                });
+
+            modelBuilder.Entity("BackendTeamwork.Entities.StockImage", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("uuid")
+                        .HasColumnName("id")
+                        .HasDefaultValueSql("gen_random_uuid()");
+
+                    b.Property<string>("Color")
+                        .IsRequired()
+                        .HasColumnType("text")
+                        .HasColumnName("color");
+
+                    b.Property<bool>("IsMain")
+                        .HasColumnType("boolean")
+                        .HasColumnName("is_main");
+
+                    b.Property<string>("Size")
+                        .IsRequired()
+                        .HasColumnType("text")
+                        .HasColumnName("size");
+
+                    b.Property<Guid>("StockId")
+                        .HasColumnType("uuid")
+                        .HasColumnName("stock_id");
+
+                    b.Property<string>("Url")
+                        .IsRequired()
+                        .HasColumnType("text")
+                        .HasColumnName("url");
+
+                    b.HasKey("Id")
+                        .HasName("pk_stock_image");
+
+                    b.HasIndex("StockId")
+                        .HasDatabaseName("ix_stock_image_stock_id");
+
+                    b.ToTable("stock_image", (string)null);
                 });
 
             modelBuilder.Entity("BackendTeamwork.Entities.User", b =>
@@ -450,25 +563,6 @@ namespace Backend.Migrations
                     b.ToTable("wishlist", (string)null);
                 });
 
-            modelBuilder.Entity("ProductWishlist", b =>
-                {
-                    b.Property<Guid>("ProductsId")
-                        .HasColumnType("uuid")
-                        .HasColumnName("products_id");
-
-                    b.Property<Guid>("WishlistsId")
-                        .HasColumnType("uuid")
-                        .HasColumnName("wishlists_id");
-
-                    b.HasKey("ProductsId", "WishlistsId")
-                        .HasName("pk_product_wishlist");
-
-                    b.HasIndex("WishlistsId")
-                        .HasDatabaseName("ix_product_wishlist_wishlists_id");
-
-                    b.ToTable("product_wishlist", (string)null);
-                });
-
             modelBuilder.Entity("BackendTeamwork.Entities.Address", b =>
                 {
                     b.HasOne("BackendTeamwork.Entities.User", "User")
@@ -537,6 +631,13 @@ namespace Backend.Migrations
 
             modelBuilder.Entity("BackendTeamwork.Entities.Product", b =>
                 {
+                    b.HasOne("BackendTeamwork.Entities.Brand", "Brand")
+                        .WithMany("Products")
+                        .HasForeignKey("BrandId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired()
+                        .HasConstraintName("fk_product_brand_brand_id");
+
                     b.HasOne("BackendTeamwork.Entities.Category", "Category")
                         .WithMany("Products")
                         .HasForeignKey("CategoryId")
@@ -544,7 +645,26 @@ namespace Backend.Migrations
                         .IsRequired()
                         .HasConstraintName("fk_product_category_category_id");
 
+                    b.Navigation("Brand");
+
                     b.Navigation("Category");
+                });
+
+            modelBuilder.Entity("BackendTeamwork.Entities.ProductWishlist", b =>
+                {
+                    b.HasOne("BackendTeamwork.Entities.Product", null)
+                        .WithMany("Wishlists")
+                        .HasForeignKey("ProductId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired()
+                        .HasConstraintName("fk_product_wishlist_product_product_id");
+
+                    b.HasOne("BackendTeamwork.Entities.Wishlist", null)
+                        .WithMany("Products")
+                        .HasForeignKey("WishlistId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired()
+                        .HasConstraintName("fk_product_wishlist_wishlist_wishlist_id");
                 });
 
             modelBuilder.Entity("BackendTeamwork.Entities.Review", b =>
@@ -598,7 +718,28 @@ namespace Backend.Migrations
                         .IsRequired()
                         .HasConstraintName("fk_stock_product_product_id");
 
+                    b.HasOne("BackendTeamwork.Entities.User", "User")
+                        .WithMany()
+                        .HasForeignKey("UserId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired()
+                        .HasConstraintName("fk_stock_user_user_id");
+
                     b.Navigation("Product");
+
+                    b.Navigation("User");
+                });
+
+            modelBuilder.Entity("BackendTeamwork.Entities.StockImage", b =>
+                {
+                    b.HasOne("BackendTeamwork.Entities.Stock", "Stock")
+                        .WithMany("StockImage")
+                        .HasForeignKey("StockId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired()
+                        .HasConstraintName("fk_stock_image_stock_stock_id");
+
+                    b.Navigation("Stock");
                 });
 
             modelBuilder.Entity("BackendTeamwork.Entities.Wishlist", b =>
@@ -613,27 +754,15 @@ namespace Backend.Migrations
                     b.Navigation("User");
                 });
 
-            modelBuilder.Entity("ProductWishlist", b =>
-                {
-                    b.HasOne("BackendTeamwork.Entities.Product", null)
-                        .WithMany()
-                        .HasForeignKey("ProductsId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired()
-                        .HasConstraintName("fk_product_wishlist_product_products_id");
-
-                    b.HasOne("BackendTeamwork.Entities.Wishlist", null)
-                        .WithMany()
-                        .HasForeignKey("WishlistsId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired()
-                        .HasConstraintName("fk_product_wishlist_wishlist_wishlists_id");
-                });
-
             modelBuilder.Entity("BackendTeamwork.Entities.Address", b =>
                 {
                     b.Navigation("Shipping")
                         .IsRequired();
+                });
+
+            modelBuilder.Entity("BackendTeamwork.Entities.Brand", b =>
+                {
+                    b.Navigation("Products");
                 });
 
             modelBuilder.Entity("BackendTeamwork.Entities.Category", b =>
@@ -660,11 +789,15 @@ namespace Backend.Migrations
                     b.Navigation("Reviews");
 
                     b.Navigation("Stocks");
+
+                    b.Navigation("Wishlists");
                 });
 
             modelBuilder.Entity("BackendTeamwork.Entities.Stock", b =>
                 {
                     b.Navigation("OrderStocks");
+
+                    b.Navigation("StockImage");
                 });
 
             modelBuilder.Entity("BackendTeamwork.Entities.User", b =>
@@ -679,6 +812,11 @@ namespace Backend.Migrations
                     b.Navigation("Reviews");
 
                     b.Navigation("Wishlists");
+                });
+
+            modelBuilder.Entity("BackendTeamwork.Entities.Wishlist", b =>
+                {
+                    b.Navigation("Products");
                 });
 #pragma warning restore 612, 618
         }

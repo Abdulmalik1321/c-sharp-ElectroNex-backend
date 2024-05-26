@@ -14,7 +14,7 @@ namespace BackendTeamwork.Controllers
       _paymentService = paymentService;
     }
 
-    [HttpGet(":{paymentId}")]
+    [HttpGet("{paymentId}")]
     [Authorize(Roles = "Admin, Customer")]
     [ProducesResponseType(StatusCodes.Status404NotFound)]
     [ProducesResponseType(StatusCodes.Status200OK)]
@@ -34,6 +34,12 @@ namespace BackendTeamwork.Controllers
     public async Task<ActionResult<PaymentReadDto>> CreateOne([FromBody] PaymentCreateDto newPayment)
     {
       return Ok(await _paymentService.CreateOne(newPayment));
+    }
+
+    [HttpGet("test")]
+    public void Test()
+    {
+      Response.Redirect("https://secure.PayTabs.com/payment/request");
     }
   }
 }

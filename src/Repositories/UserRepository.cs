@@ -60,6 +60,18 @@ namespace BackendTeamwork.Repositories
             return updatedUser;
         }
 
+        public async Task<User?> UpdateRole(Guid userId, Role newRole)
+        {
+            User? user = await this.FindOne(userId);
+            if (user is not null)
+            {
+                user.Role = newRole;
+                _users.Update(user);
+                await _databaseContext.SaveChangesAsync();
+            }
+            return user;
+        }
+
         public async Task<User> DeleteOne(User deletedUser)
         {
             _users.Remove(deletedUser);

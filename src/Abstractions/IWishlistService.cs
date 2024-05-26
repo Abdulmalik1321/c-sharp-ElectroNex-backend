@@ -1,12 +1,14 @@
 using BackendTeamwork.DTOs;
+using BackendTeamwork.Entities;
 
 namespace BackendTeamwork.Abstractions
 {
     public interface IWishlistService
     {
-        public IEnumerable<WishlistReadDto> FindMany(int limit, int offset);
+        public IEnumerable<WishlistReadDto> FindMany(Guid userId, int limit, int offset);
 
-        public Task<WishlistReadDto?> FindOne(Guid wishlistId);
+        public Task<WishlistReadJoinDto?> FindOne(Guid wishlistId);
+        public Task<WishlistReadDto?> FindOneNoJoin(Guid wishlistId);
 
         public Task<WishlistReadDto?> AddOneProduct(Guid wishlistId, Guid productId);
 

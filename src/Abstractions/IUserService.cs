@@ -8,6 +8,7 @@ namespace BackendTeamwork.Abstractions
     {
         public IEnumerable<UserReadDto> FindMany(int limit, int offset, SortBy sortBy);
         public Task<UserReadDto?> FindOne(Guid userId);
+        public Task<UserReadDto?> UpdateRole(Guid userId, Role newRole);
         public Task<UserReadDto> FindOneByEmail(string email);
 
         public Task<UserReadDto?> SignUp(UserCreateDto newUser);

@@ -54,7 +54,7 @@ namespace BackendTeamwork.Services
             Regex regex = new Regex(@"^[a-zA-Z0-9_.+-]+@[a-zA-Z0-9-]+\.[a-zA-Z0-9-.]+$");
             if (!regex.IsMatch(newUser.Email)) throw CustomErrorException.InvalidData("Invalid email format");
 
-            byte[] pepper = Encoding.UTF8.GetBytes(_config["Jwt:Pepper"]!);
+            byte[] pepper = Encoding.UTF8.GetBytes(_config["Jwt_Pepper"]!);
             PasswordUtils.HashPassword(newUser.Password, out string hashedPassword, pepper);
             newUser.Password = hashedPassword;
 
@@ -66,22 +66,22 @@ namespace BackendTeamwork.Services
             User? user = await _UserRepository.FindOneByEmail(userSignIn.Email);
             if (user is null) throw CustomErrorException.NotFound("User does not exist");
 
-            byte[] pepper = Encoding.UTF8.GetBytes(_config["Jwt:Pepper"]!);
+            byte[] pepper = Encoding.UTF8.GetBytes(_config["Jwt_Pepper"]!);
             bool isCorrectPass = PasswordUtils.VerifyPassword(userSignIn.Password, user.Password, pepper);
 
             if (!isCorrectPass) throw CustomErrorException.InvalidData("Invalid data");
 
             IEnumerable<Claim> claims = [
-                new Claim(ClaimTypes.Name, $"{user.FirstName} {user.LastName}"),
+                // new Claim(ClaimTypes.Name, $"{user.FirstName} {user.LastName}"),
                 new Claim(ClaimTypes.Role, user.Role.ToString()),
                 new Claim(ClaimTypes.Email, user.Email)
             ];
-            var key = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(_config["Jwt:SigningKey"]!));
+            var key = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(_config["Jwt_SigningKey"]!));
             var creds = new SigningCredentials(key, SecurityAlgorithms.HmacSha256);
 
             var token = new JwtSecurityToken(
-                issuer: _config["Jwt:Issuer"],
-                audience: _config["Jwt:Audience"],
+                issuer: _config["Jwt_Issuer"],
+                audience: _config["Jwt_Audience"],
                 claims: claims,
                 expires: DateTime.Now.AddDays(7),
                 signingCredentials: creds
@@ -102,6 +102,10 @@ namespace BackendTeamwork.Services
             targetUser.LastName = updatedUser.LastName;
             targetUser.Phone = updatedUser.Phone;
             return _mapper.Map<UserReadDto>(await _UserRepository.UpdateOne(targetUser));
+        }
+        public async Task<UserReadDto?> UpdateRole(Guid userId, Role newRole)
+        {
+            return _mapper.Map<UserReadDto>(await _UserRepository.UpdateRole(userId, newRole));
         }
 
         public async Task<UserReadDto?> DeleteOne(Guid userId)
