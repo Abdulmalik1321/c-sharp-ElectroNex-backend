@@ -12,7 +12,6 @@ namespace BackendTeamwork.Mappers
 
             CreateMap<AddressCreateDto, Address>();
             CreateMap<CategoryCreateDto, Category>();
-            CreateMap<BrandCreateDto, Brand>();
             CreateMap<OrderCreateDto, Order>();
             CreateMap<OrderStockCreateDto, OrderStock>();
             CreateMap<PaymentCreateDto, Payment>();
@@ -25,7 +24,6 @@ namespace BackendTeamwork.Mappers
 
             CreateMap<AddressUpdateDto, Address>();
             CreateMap<CategoryUpdateDto, Category>();
-            CreateMap<BrandUpdateDto, Brand>();
             CreateMap<OrderUpdateDto, Order>();
             // CreateMap<OrderStockUpdateDto, OrderStock>();
             // CreateMap<PaymentUpdateDto, Payment>();
@@ -38,7 +36,6 @@ namespace BackendTeamwork.Mappers
 
             CreateMap<Address, AddressReadDto>();
             CreateMap<Category, CategoryReadDto>();
-            CreateMap<Brand, BrandReadDto>();
             CreateMap<Brand, BrandReadDto>();
             CreateMap<Order, OrderReadDto>();
             CreateMap<OrderStock, OrderStockReadDto>();
