@@ -41,6 +41,25 @@ namespace BackendTeamwork.DTOs
 
     }
 
+    public class StockJoinManyDto
+    {
+        public Guid Id { get; set; }
+        public string ProductName { get; set; }
+        public IEnumerable<StockImagesDto> Images { get; set; }
+        public string Color { get; set; }
+        public string Size { get; set; }
+        public double Price { get; set; }
+        public double Quantity { get; set; }
+        public string UserName { get; set; }
+        public string Condition { get; set; }
+    }
+
+    public class StockImagesDto
+    {
+        public string Url { get; set; }
+        public bool IsMain { get; set; }
+    }
+
     public class StockReadDto
     {
         public Guid Id { get; set; }

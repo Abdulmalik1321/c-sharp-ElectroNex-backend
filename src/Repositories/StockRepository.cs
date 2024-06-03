@@ -14,23 +14,56 @@ namespace BackendTeamwork.Repositories
     {
 
         private DbSet<Stock> _stocks;
+        private DbSet<StockImage> _stockImages;
+        private DbSet<Product> _products;
+        private DbSet<User> _users;
         private DatabaseContext _databaseContext;
 
         public StockRepository(DatabaseContext databaseContext)
         {
             _stocks = databaseContext.Stock;
+            _users = databaseContext.User;
+            _stockImages = databaseContext.StockImage;
+            _products = databaseContext.Product;
             _databaseContext = databaseContext;
 
         }
 
-        public IEnumerable<Stock> FindMany(int limit, int offset)
+        public IEnumerable<StockJoinManyDto> FindMany(Guid userId, int limit, int offset)
         {
+            IEnumerable<StockJoinManyDto> query = from stock in _stocks.Where(stock => stock.UserId == userId)
+                                                  join stockImage in _stockImages on stock.Id equals stockImage.StockId
+                                                  join product in _products on stock.ProductId equals product.Id
+                                                  join user in _users on stock.UserId equals user.Id
+                                                  group new { stock, product, stockImage, user } by stock.Id into grouped
+                                                  select new StockJoinManyDto
+                                                  {
+                                                      Id = grouped.First().stock.Id,
+                                                      ProductName = grouped.First().product.Name,
+                                                      Images = grouped
+                                                                .OrderByDescending(x => x.stockImage.IsMain)
+                                                                .Select(x => new StockImagesDto
+                                                                {
+                                                                    Url = x.stockImage.Url,
+                                                                    IsMain = x.stockImage.IsMain,
+                                                                }),
+
+                                                      Color = grouped.First().stock.Color,
+                                                      Size = grouped.First().stock.Size,
+                                                      Price = grouped.First().stock.Price,
+                                                      Quantity = grouped.First().stock.Quantity,
+                                                      UserName = $"{grouped.First().user.FirstName} {grouped.First().user.LastName}",
+                                                      Condition = grouped.First().stock.Condition
+                                                  };
+
             if (limit == 0 && offset == 0)
             {
-                return _stocks;
+                return query;
             }
-            return _stocks.Skip(offset).Take(limit);
+
+            return query.Skip(offset).Take(limit);
         }
+
 
         public IEnumerable<Stock> FindMany(Guid productId)
         {

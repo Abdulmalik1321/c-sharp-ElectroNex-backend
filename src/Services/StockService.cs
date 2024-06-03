@@ -24,9 +24,9 @@ namespace BackendTeamwork.Services
             _databaseContext = databaseContext;
         }
 
-        public IEnumerable<StockReadDto> FindMany(int limit, int offset)
+        public IEnumerable<StockJoinManyDto> FindMany(Guid userId, int limit, int offset)
         {
-            return _stockRepository.FindMany(limit, offset).Select(_mapper.Map<StockReadDto>);
+            return _stockRepository.FindMany(userId, limit, offset);
         }
 
         public IEnumerable<StockReadDto> FindMany(Guid productId)

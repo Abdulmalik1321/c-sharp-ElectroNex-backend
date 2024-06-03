@@ -16,12 +16,12 @@ namespace BackendTeamwork.Controllers
             _stockService = stockService;
         }
 
-        [HttpGet]
+        [HttpGet("user/{userId}")]
         [Authorize(Roles = "Admin, Customer")]
         [ProducesResponseType(StatusCodes.Status200OK)]
-        public ActionResult<IEnumerable<StockReadDto>> FindMany([FromQuery(Name = "limit")] int limit, [FromQuery(Name = "offset")] int offset)
+        public ActionResult<IEnumerable<StockJoinManyDto>> FindMany(Guid userId, [FromQuery(Name = "limit")] int limit, [FromQuery(Name = "offset")] int offset)
         {
-            return Ok(_stockService.FindMany(limit, offset));
+            return Ok(_stockService.FindMany(userId, limit, offset));
         }
 
         [HttpGet("{productId}")]
