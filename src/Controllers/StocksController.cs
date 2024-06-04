@@ -32,21 +32,8 @@ namespace BackendTeamwork.Controllers
             return Ok(_stockService.FindMany(productId));
         }
 
-        // [HttpGet("{stockId}")]
-        // [ProducesResponseType(StatusCodes.Status200OK)]
-        // [ProducesResponseType(StatusCodes.Status400BadRequest)]
-        // public async Task<ActionResult<Stock>> FindOne(Guid stockId)
-        // {
-        //     Stock? stock = await _stockService.FindOne(stockId);
-        //     if (stock is not null)
-        //     {
-        //         return Ok(stock);
-        //     }
-        //     return NotFound();
-        // }
-
         [HttpPost]
-        [Authorize(Roles = "Admin")]
+        [Authorize(Roles = "Admin, Customer")]
         [ProducesResponseType(StatusCodes.Status201Created)]
         [ProducesResponseType(StatusCodes.Status400BadRequest)]
         public async Task<ActionResult<StockReadDto>> CreateOne([FromBody] StockCreateDto newStock)
